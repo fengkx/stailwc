@@ -14,7 +14,7 @@ pub struct TailwindConfig<'a> {
     #[serde(borrow)]
     pub theme: TailwindTheme<'a>,
     #[serde(alias = "darkMode")]
-    pub dark_mode: &'a str,
+    pub dark_mode: DarkMode<'a>,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -160,4 +160,16 @@ pub enum Screens<'a> {
 pub struct LineHeight<'a> {
     #[serde(alias = "lineHeight")]
     pub line_height: &'a str,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum DarkMode<'a> {
+    Str(&'a str),
+    CustomClassName(Vec<&'a str>),
+}
+impl<'a> Default for DarkMode<'a> {
+    fn default() -> Self {
+        DarkMode::Str("media")
+    }
 }

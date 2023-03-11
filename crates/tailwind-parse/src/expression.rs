@@ -13,7 +13,7 @@ use swc_core::{
     common::{BytePos, Span, DUMMY_SP},
     ecma::ast::{Expr, KeyValueProp, Lit, ObjectLit, Prop, PropName, PropOrSpread, Str},
 };
-use tailwind_config::{Screens, TailwindConfig};
+use tailwind_config::{DarkMode, Screens, TailwindConfig};
 
 use crate::{subject::Subject, NomSpan, SubjectConversionError, SubjectValue};
 
@@ -134,13 +134,19 @@ impl<'a> Expression<'a> {
                     "first-line" => "::first-line",
                     "placeholder" => "::placeholder",
                     "backdrop" => "::backdrop",
-                    "dark" => match config.dark_mode {
-                        "media" => "@media (prefers-color-scheme: dark)",
-                        "class" => ".dark",
+                    "dark" => match &config.dark_mode {
+                        DarkMode::Str("class") => ".dark",
+                        DarkMode::Str("media") => "@media (prefers-color-scheme: dark)",
+                        DarkMode::CustomClassName(arr) => {
+                            if arr.len() != 2 || arr[0] != "class" {
+                                continue;
+                            }
+                            arr[1]
+                        }
                         _ => continue,
                     },
-                    "light" => match config.dark_mode {
-                        "media" => "@media (prefers-color-scheme: light)",
+                    "light" => match &config.dark_mode {
+                        DarkMode::Str("media") => "@media (prefers-color-scheme: light)",
                         _ => continue,
                     },
                     "focus" => ":focus",
